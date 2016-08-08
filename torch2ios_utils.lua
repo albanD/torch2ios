@@ -2,7 +2,7 @@
 -- RandomDudes
 -- 2016
 
-torch2ios_utils = {}
+local torch2ios_utils = {}
 
 function torch2ios_utils.flatten(tensor)
   local dimensions = tensor:nDimension()
@@ -22,3 +22,5 @@ function torch2ios_utils.flatten(tensor)
   t:resizeAs(torch.Tensor(tensorSize))
   return t
 end
+
+return torch2ios_utils

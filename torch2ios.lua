@@ -2,7 +2,9 @@
 -- RandomDudes
 -- 2016
 
-require 'torch2ios_utils'
+local torch2ios = {}
+
+local torch2ios_utils = require 'torch2ios.utils'
 require 'torch'
 
 local linear = 1
@@ -23,7 +25,7 @@ local torchFloatT = 1
 local torchDoubleT = 2
 local torchIntT = 3
 
-function saveForiOS(container, filename)
+torch2ios.saveForiOS = function(container, filename)
 	local file = torch.DiskFile(filename..".t7ios", 'w')
 	file:binary()
 	local modulesCount = container:listModules()
@@ -48,7 +50,7 @@ function saveForiOS(container, filename)
 	file:close()
 end
 
-function resolveLayerName(name)
+torch2ios.resolveLayerName = function(name)
 	local id = 0
 	if name == "nn.Linear" then
 		id = linear
@@ -78,7 +80,7 @@ function resolveLayerName(name)
 	return id
 end
 
-function resolveTensorType(tensorType)
+torch2ios.resolveTensorType = function(tensorType)
 	local id = 0
 	if tensorType == "torch.FloatTensor" then
 		id = torchFloatT
@@ -90,7 +92,7 @@ function resolveTensorType(tensorType)
 	return id;
 end
 
-function appendBinary(file, name, weight, bias, weight_c, bias_c, weight_layer_type, bias_layer_type, linear_values, conv_values, pool_values)
+torch2ios.appendBinary = function(file, name, weight, bias, weight_c, bias_c, weight_layer_type, bias_layer_type, linear_values, conv_values, pool_values)
 	--Write Layer Type ID
 	local layerid = resolveLayerName(name)
 	file:writeInt(layerid)
@@ -144,14 +146,14 @@ function appendBinary(file, name, weight, bias, weight_c, bias_c, weight_layer_t
 	end
 end
 
-function isSupportedLayer(layerName)
+torch2ios.isSupportedLayer = function(layerName)
 	if resolveLayerName(layerName) > 0 then
 		return true
 	end
 	return false
 end
 
-function processLayer(layerData)
+torch2ios.processLayer = function(layerData)
 	--Layer Name
 	local name = torch.type(layerData)
 	if isSupportedLayer(name) == false then
@@ -224,3 +226,5 @@ function processLayer(layerData)
 
 	return true, name, weight, bias, weight_c, bias_c, wltype, bltype, {linear_input_size,linear_output_size}, {conv_input_plane,conv_output_plane,conv_kernel_width,conv_kernel_height,conv_shift_width,conv_shift_height,conv_pad_width,conv_pad_height},{pool_kernel_width,pool_kernel_height,pool_shift_width,pool_shift_height,pool_pad_width,pool_pad_height}
 end
+
+return torch2ios
